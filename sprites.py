@@ -91,7 +91,7 @@ class Player(pg.sprite.Sprite):
 			self.rotate(-1)
 		
 		self.rect.x += self.speedx
-
+		pg.draw.line(self.game.screen, RED, (100,100), (0, 0))
 		"""if self.rect.left < 0:
 			self.rect.left = 0
 		if self.rect.right > WIDTH:
@@ -101,22 +101,32 @@ class Mob(pg.sprite.Sprite):
 	def __init__(self, game):
 		pg.sprite.Sprite.__init__(self)
 		self.game = game
-		factor =  2/3.0
-		self.image = pg.transform.scale(game.mob_img, (int(factor*180), int(factor*130)))
+		self.factor =  2/3.0
+		self.frame = 0
+		self.image = pg.transform.scale(self.game.mob_img[0] ,(int(self.factor*180), int(self.factor*130)))#self.game.player_img
 		self.image.set_colorkey(BLACK)
 		self.rect = self.image.get_rect()
-		self.radius = 50*factor
-		#pg.draw.circle(self.image, RED, self.rect.center, self.radius)
 		self.spawn()
+		self.radius = 50*self.factor
+		self.rage = False
+		if self.ch == game.mob_img1:
+			self.rage = True
+		#pg.draw.circle(self.image, RED, self.rect.center, self.radius)
+		
 
 	def update(self):
 		self.rect.x += self.speedx
 		if self.rect.x > WIDTH:
-			self.spawn()		
+			self.spawn()	
+		self.frame +=1
+		self.image = pg.transform.scale(self.ch[self.frame%16 / 4] , (int(self.factor*180), int(self.factor*130)))
 
 	def spawn(self):
 		self.rect.x,self.rect.y = (randrange(-200, -100),randrange(0,4*HEIGHT/7) )
 		self.speedx = randrange(2,MOB_SPEED)
+		imgs = [self.game.mob_img, self.game.mob_img1]
+		self.ch = choice(imgs)
+		self.image = pg.transform.scale(self.ch[0] , (int(self.factor*180), int(self.factor*130)))
 
 class Arrow(pg.sprite.Sprite):
 	def __init__(self, game, vec_butt, vec_tip, rot):
@@ -151,9 +161,10 @@ class Arrow(pg.sprite.Sprite):
 		pg.draw.circle(self.image_orig, RED, self.rect.center, self.radius)
 		
 	def update(self):
-		self.vel += self.acc 
+		"""self.vel += self.acc 
 		self.pos += self.vel + 0.5 * self.acc
-		self.rotate(self.rot + atan(self.vel.y/self.vel.x))
+		self.rotate(self.rot + atan(self.vel.y/self.vel.x))"""
+		self.pos += self.vel
 		#self.pos += self.vel
 		self.rect.center = self.pos
 

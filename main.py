@@ -27,11 +27,10 @@ class Game:
         
         # loading all sound files
         #pg.mixer.music.load(path.join(self.snd_dir, 'Soliloquy.mp3'))
-        
-
         self.player_img = pg.image.load(path.join(self.img_dir, "bowArrow.png"))#.convert()
         self.player_img1 = pg.image.load(path.join(self.img_dir, "bow.png"))
-        self.mob_img = pg.image.load(path.join(self.img_dir, "frame-2.png"))#.convert()
+        self.mob_img = [pg.image.load(path.join(self.img_dir, "frame-"+str(i)+".png")) for i in range(1,5)]#.convert()
+        self.mob_img1 = [pg.image.load(path.join(self.img_dir,  str(i)+".png")) for i in range(1,5)]
         self.arrow_img = pg.image.load(path.join(self.img_dir, "arrow.png"))
         self.mobs = pg.sprite.Group()
         self.arrows = pg.sprite.Group()
@@ -72,7 +71,7 @@ class Game:
         for hit in hits:
             now = pg.time.get_ticks()
             self.arrows.update()
-            self.newmob()
+            self.newmob()            
         self.all_sprites.update()
 
     def events(self):
@@ -128,7 +127,24 @@ class Game:
                     waiting = False
     def show_go_screen(self):
         # game over/continue
-        pass
+        if not self.running:
+            return
+        pg.mixer.music.load(path.join(self.snd_dir, 'Yippee.ogg'))
+        pg.mixer.music.play(loops=-1)
+        self.screen.fill(BGCOLOR)
+        self.draw_text("GAME OVER", 48, WHITE, WIDTH / 2, HEIGHT / 4)
+        self.draw_text("Score: " + str(self.score), 22, WHITE, WIDTH / 2, HEIGHT / 2)
+        self.draw_text("Press a key to play again", 22, WHITE, WIDTH / 2, HEIGHT * 3 / 4)
+        if self.score > self.highscore:
+            self.highscore = self.score
+            self.draw_text("NEW HIGH SCORE!", 22, WHITE, WIDTH / 2, HEIGHT / 2 + 40)
+            with open(path.join(self.dir, HS_FILE), 'w') as f:
+                f.write(str(self.score))
+        else:
+            self.draw_text("High Score: " + str(self.highscore), 22, WHITE, WIDTH / 2, HEIGHT / 2 + 40)
+        pg.display.flip()
+        self.wait_for_key()
+        pg.mixer.music.fadeout(500)
 
 g = Game()
 g.show_start_screen()
